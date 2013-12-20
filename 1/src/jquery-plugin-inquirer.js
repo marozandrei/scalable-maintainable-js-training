@@ -13,7 +13,8 @@
 			questions: [],
 			currentQuestion: 0,
 			totalPoints: 0,
-			displayPlugin: 'outcome'
+			displayPlugin: 'outcome',
+			callback: function(){}
 		};
 
 	function Plugin(element, options) {
@@ -30,16 +31,16 @@
 	};
 	
 	Plugin.prototype.setEvents = function() {
-		self = this;
-		$(this.element).find('input').click(function(element) {
-			self.voteEvent(element);
+		var self = this;
+		$(this.element).find('input').click(function() {
+			self.voteEvent(this);
 		});
 	};
 	
 	Plugin.prototype.voteEvent = function(element) {
-		this.options.totalPoints += this.options.questions[this.options.currentQuestion].points[$(element.target).attr('value')];
+		this.options.totalPoints += this.options.questions[this.options.currentQuestion].points[$(element).attr('value')];
 		this.options.currentQuestion++;
-		$(element.target).context.checked = false;
+		$(element).context.checked = false;
 		this.displayNextQuestion();
 	};
 	
@@ -47,7 +48,6 @@
 		if (this.options.currentQuestion < this.options.questions.length)
 		{
 			self = this;
-			
 			$.each($(this.element).find('span'), function(key, val) {
 				$(val).html(self.options.questions[self.options.currentQuestion].answers[key]);
 				
@@ -58,7 +58,7 @@
 		else
 		{
 			$(this.element).html('');
-			$(this.element)[this.options.displayPlugin]({totalPoints:this.options.totalPoints});
+			this.options.callback(this.options.totalPoints);
 		}
 	};
 	
@@ -83,7 +83,3 @@
 	};
 
 })(jQuery, window, document);
-
-$(function() {
-	$('#inquirer').inquirer({'displayPlugin':'outcome'});
-});
